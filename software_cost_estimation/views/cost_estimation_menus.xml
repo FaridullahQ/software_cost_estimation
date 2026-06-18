@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_cost_estimation_root" name="Cost Estimation"
+              web_icon="software_cost_estimation,static/description/icon.png"
+              sequence="95"/>
+
+    <menuitem id="menu_cost_estimate" name="Estimates"
+              parent="menu_cost_estimation_root"
+              action="action_cost_estimate" sequence="10"/>
+
+    <menuitem id="menu_cost_estimation_config" name="Configuration"
+              parent="menu_cost_estimation_root" sequence="90"
+              groups="software_cost_estimation.group_cost_estimation_manager"/>
+
+    <menuitem id="menu_cost_estimation_rate" name="Rate Card"
+              parent="menu_cost_estimation_config"
+              action="action_cost_estimation_rate" sequence="10"/>
+
+    <menuitem id="menu_cost_estimation_catalog" name="Cost Driver Catalog"
+              parent="menu_cost_estimation_config"
+              action="action_cost_estimation_catalog" sequence="20"/>
+
+    <menuitem id="menu_cost_estimation_markup_template" name="Markup Templates"
+              parent="menu_cost_estimation_config"
+              action="action_cost_estimation_markup_template" sequence="30"/>
+
+    <menuitem id="menu_cost_estimation_settings" name="Settings"
+              parent="menu_cost_estimation_config"
+              action="action_cost_estimation_settings" sequence="40"/>
+
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_sce" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.sce</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Cost Estimation" string="Cost Estimation"
+                     name="software_cost_estimation">
+                    <block title="Flat Cost Factors"
+                           name="sce_flat_block">
+                        <setting string="Cost per Project Month"
+                                 help="Multiplied by the estimated duration in months.">
+                            <field name="sce_monthly_rate"/>
+                        </setting>
+                        <setting string="Round Grand Total Up To"
+                                 help="Rounding increment applied to the final grand total.">
+                            <field name="sce_rounding"/>
+                        </setting>
+                    </block>
+                    <block title="Scope Base Cost" name="sce_scope_block">
+                        <setting string="Small"><field name="sce_scope_small"/></setting>
+                        <setting string="Medium"><field name="sce_scope_medium"/></setting>
+                        <setting string="Large"><field name="sce_scope_large"/></setting>
+                    </block>
+                    <block title="Technology Variance" name="sce_tech_block">
+                        <setting string="Level One"><field name="sce_tech_level1"/></setting>
+                        <setting string="Level Two"><field name="sce_tech_level2"/></setting>
+                        <setting string="Level Three"><field name="sce_tech_level3"/></setting>
+                    </block>
+                    <block title="System Architecture" name="sce_arch_block">
+                        <setting string="Monolith"><field name="sce_arch_monolith"/></setting>
+                        <setting string="Hybrid (Monolith Modular)"><field name="sce_arch_hybrid"/></setting>
+                        <setting string="Micro Services"><field name="sce_arch_microservices"/></setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_cost_estimation_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'software_cost_estimation'}</field>
+    </record>
+
+</odoo>

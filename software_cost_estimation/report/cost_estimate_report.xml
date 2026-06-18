@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paperformat_cost_estimate" model="report.paperformat">
+        <field name="name">Cost Estimate A4</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">28</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">28</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_cost_estimate" model="ir.actions.report">
+        <field name="name">Cost Estimate</field>
+        <field name="model">cost.estimate</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">software_cost_estimation.report_cost_estimate</field>
+        <field name="report_file">software_cost_estimation.report_cost_estimate</field>
+        <field name="paperformat_id" ref="paperformat_cost_estimate"/>
+        <field name="binding_model_id" ref="model_cost_estimate"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

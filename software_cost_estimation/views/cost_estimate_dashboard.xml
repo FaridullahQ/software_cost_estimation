@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_cost_estimate_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">cost_estimate_dashboard</field>
+    </record>
+
+    <menuitem id="menu_cost_estimate_dashboard"
+              name="Dashboard"
+              parent="menu_cost_estimation_root"
+              action="action_cost_estimate_dashboard"
+              sequence="5"/>
+
+</odoo>

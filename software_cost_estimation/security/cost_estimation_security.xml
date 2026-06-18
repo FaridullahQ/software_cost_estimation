@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="module_category_cost_estimation" model="ir.module.category">
+        <field name="name">Cost Estimation</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="group_cost_estimation_user" model="res.groups">
+        <field name="name">Estimator</field>
+        <field name="category_id" ref="module_category_cost_estimation"/>
+        <field name="comment">Can create and edit their own cost estimates.</field>
+    </record>
+
+    <record id="group_cost_estimation_manager" model="res.groups">
+        <field name="name">Estimation Manager</field>
+        <field name="category_id" ref="module_category_cost_estimation"/>
+        <field name="implied_ids" eval="[(4, ref('group_cost_estimation_user'))]"/>
+        <field name="comment">Full access: approve estimates, manage rate card, catalog and markup templates.</field>
+    </record>
+
+    <record id="cost_estimate_rule_user_own" model="ir.rule">
+        <field name="name">Estimator: own estimates</field>
+        <field name="model_id" ref="model_cost_estimate"/>
+        <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('group_cost_estimation_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="cost_estimate_rule_manager_all" model="ir.rule">
+        <field name="name">Manager: all estimates</field>
+        <field name="model_id" ref="model_cost_estimate"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_cost_estimation_manager'))]"/>
+    </record>
+
+    <record id="cost_estimate_rule_company" model="ir.rule">
+        <field name="name">Cost Estimate: multi-company</field>
+        <field name="model_id" ref="model_cost_estimate"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

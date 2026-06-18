@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ============ Data Model ============ -->
+    <record id="cat_trans_tables" model="cost.estimation.catalog">
+        <field name="name"># of Transactional Tables</field>
+        <field name="sequence">10</field>
+        <field name="category">data_model</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">8.0</field>
+        <field name="default_unit_rate">10.0</field>
+        <field name="note">Rate per complexity point. Complexity 1-10.</field>
+    </record>
+    <record id="cat_lookup_tables" model="cost.estimation.catalog">
+        <field name="name"># of Lookup Tables</field>
+        <field name="sequence">20</field>
+        <field name="category">data_model</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">2.0</field>
+        <field name="default_unit_rate">5.0</field>
+    </record>
+    <record id="cat_procedures" model="cost.estimation.catalog">
+        <field name="name"># of Procedures / Functions (DB level)</field>
+        <field name="sequence">30</field>
+        <field name="category">data_model</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">3.0</field>
+        <field name="default_unit_rate">10.0</field>
+    </record>
+    <record id="cat_data_amount" model="cost.estimation.catalog">
+        <field name="name">Data Amount (per million records)</field>
+        <field name="sequence">40</field>
+        <field name="category">data_model</field>
+        <field name="calc_method">flat</field>
+        <field name="default_unit_rate">500.0</field>
+        <field name="note">Count = millions of records.</field>
+    </record>
+
+    <record id="cat_users" model="cost.estimation.catalog">
+        <field name="name"># Users (per user)</field>
+        <field name="sequence">45</field>
+        <field name="category">data_model</field>
+        <field name="calc_method">flat</field>
+        <field name="default_unit_rate">100.0</field>
+        <field name="note">Count = number of system users.</field>
+    </record>
+
+    <!-- ============ Processes & Logic ============ -->
+    <record id="cat_processes" model="cost.estimation.catalog">
+        <field name="name"># of Processes</field>
+        <field name="sequence">50</field>
+        <field name="category">logic</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">5.0</field>
+        <field name="default_unit_rate">10.0</field>
+    </record>
+
+    <!-- ============ Interfaces & Integration ============ -->
+    <record id="cat_interfaces" model="cost.estimation.catalog">
+        <field name="name"># of Interfaces (UI screens)</field>
+        <field name="sequence">60</field>
+        <field name="category">integration</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">8.0</field>
+        <field name="default_unit_rate">15.0</field>
+    </record>
+    <record id="cat_integration" model="cost.estimation.catalog">
+        <field name="name"># Systems Integration (per endpoint)</field>
+        <field name="sequence">70</field>
+        <field name="category">integration</field>
+        <field name="calc_method">flat</field>
+        <field name="default_unit_rate">1000.0</field>
+        <field name="note">Count = number of integrated systems (HR, Sales, Purchase, ...).</field>
+    </record>
+    <record id="cat_external_api" model="cost.estimation.catalog">
+        <field name="name">External API Support</field>
+        <field name="sequence">80</field>
+        <field name="category">integration</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">500.0</field>
+    </record>
+
+    <!-- ============ Reporting & Analytics ============ -->
+    <record id="cat_reporting" model="cost.estimation.catalog">
+        <field name="name">Reporting</field>
+        <field name="sequence">90</field>
+        <field name="category">analytics</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">5.0</field>
+        <field name="default_unit_rate">100.0</field>
+    </record>
+    <record id="cat_visualizations" model="cost.estimation.catalog">
+        <field name="name">Visualizations / Dashboards</field>
+        <field name="sequence">100</field>
+        <field name="category">analytics</field>
+        <field name="calc_method">count_complexity_rate</field>
+        <field name="default_complexity">1.0</field>
+        <field name="default_unit_rate">150.0</field>
+    </record>
+    <record id="cat_decision_support" model="cost.estimation.catalog">
+        <field name="name">Decision Support</field>
+        <field name="sequence">110</field>
+        <field name="category">analytics</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">500.0</field>
+    </record>
+
+    <!-- ============ Security: Authorization ============ -->
+    <record id="cat_abac" model="cost.estimation.catalog">
+        <field name="name">Authorization: Attribute-Based (ABAC)</field>
+        <field name="sequence">120</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">500.0</field>
+    </record>
+    <record id="cat_rbac" model="cost.estimation.catalog">
+        <field name="name">Authorization: Role-Based (RBAC)</field>
+        <field name="sequence">130</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">750.0</field>
+    </record>
+    <record id="cat_rebac" model="cost.estimation.catalog">
+        <field name="name">Authorization: Relationship-Based (ReBAC)</field>
+        <field name="sequence">140</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+
+    <!-- ============ Security: Authentication ============ -->
+    <record id="cat_auth_password" model="cost.estimation.catalog">
+        <field name="name">Authentication: Password Based</field>
+        <field name="sequence">150</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">200.0</field>
+    </record>
+    <record id="cat_auth_2fa" model="cost.estimation.catalog">
+        <field name="name">Authentication: 2-Factor</field>
+        <field name="sequence">160</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">300.0</field>
+    </record>
+    <record id="cat_auth_biometric" model="cost.estimation.catalog">
+        <field name="name">Authentication: Biometric</field>
+        <field name="sequence">170</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">500.0</field>
+    </record>
+    <record id="cat_auth_certificate" model="cost.estimation.catalog">
+        <field name="name">Authentication: Certificate Based</field>
+        <field name="sequence">180</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">600.0</field>
+    </record>
+    <record id="cat_auth_token" model="cost.estimation.catalog">
+        <field name="name">Authentication: Token Based</field>
+        <field name="sequence">190</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">400.0</field>
+    </record>
+    <record id="cat_auth_sso" model="cost.estimation.catalog">
+        <field name="name">Authentication: Single Sign-On</field>
+        <field name="sequence">200</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+    <record id="cat_auth_apikey" model="cost.estimation.catalog">
+        <field name="name">Authentication: API Key Based</field>
+        <field name="sequence">210</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+    <record id="cat_auth_oauth" model="cost.estimation.catalog">
+        <field name="name">Authentication: OAuth 2.0</field>
+        <field name="sequence">220</field>
+        <field name="category">security</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+
+    <!-- ============ Localization ============ -->
+    <record id="cat_localization" model="cost.estimation.catalog">
+        <field name="name">Localization (config, per language)</field>
+        <field name="sequence">230</field>
+        <field name="category">localization</field>
+        <field name="calc_method">flat</field>
+        <field name="default_unit_rate">500.0</field>
+        <field name="note">Count = number of languages (e.g. Dari, Pashto, English).</field>
+    </record>
+
+    <!-- ============ Data Migration ============ -->
+    <record id="cat_mig_extraction" model="cost.estimation.catalog">
+        <field name="name">Migration: Extraction</field>
+        <field name="sequence">240</field>
+        <field name="category">migration</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+    <record id="cat_mig_cleaning" model="cost.estimation.catalog">
+        <field name="name">Migration: Data Cleaning</field>
+        <field name="sequence">250</field>
+        <field name="category">migration</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">2000.0</field>
+    </record>
+    <record id="cat_mig_transform" model="cost.estimation.catalog">
+        <field name="name">Migration: Transformation / Enrichment</field>
+        <field name="sequence">260</field>
+        <field name="category">migration</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">1000.0</field>
+    </record>
+    <record id="cat_mig_loading" model="cost.estimation.catalog">
+        <field name="name">Migration: Loading</field>
+        <field name="sequence">270</field>
+        <field name="category">migration</field>
+        <field name="calc_method">toggle</field>
+        <field name="default_unit_rate">500.0</field>
+    </record>
+
+</odoo>

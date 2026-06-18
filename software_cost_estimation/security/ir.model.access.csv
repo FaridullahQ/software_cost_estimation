@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cost_estimate_user,cost.estimate.user,model_cost_estimate,group_cost_estimation_user,1,1,1,1
+access_cost_estimate_manager,cost.estimate.manager,model_cost_estimate,group_cost_estimation_manager,1,1,1,1
+access_cost_estimate_labor_user,cost.estimate.labor.user,model_cost_estimate_labor,group_cost_estimation_user,1,1,1,1
+access_cost_estimate_line_user,cost.estimate.line.user,model_cost_estimate_line,group_cost_estimation_user,1,1,1,1
+access_cost_estimate_markup_user,cost.estimate.markup.user,model_cost_estimate_markup,group_cost_estimation_user,1,1,1,1
+access_cost_estimation_rate_user,cost.estimation.rate.user,model_cost_estimation_rate,group_cost_estimation_user,1,0,0,0
+access_cost_estimation_rate_manager,cost.estimation.rate.manager,model_cost_estimation_rate,group_cost_estimation_manager,1,1,1,1
+access_cost_estimation_catalog_user,cost.estimation.catalog.user,model_cost_estimation_catalog,group_cost_estimation_user,1,0,0,0
+access_cost_estimation_catalog_manager,cost.estimation.catalog.manager,model_cost_estimation_catalog,group_cost_estimation_manager,1,1,1,1
+access_cost_estimation_markup_template_user,cost.estimation.markup.template.user,model_cost_estimation_markup_template,group_cost_estimation_user,1,0,0,0
+access_cost_estimation_markup_template_manager,cost.estimation.markup.template.manager,model_cost_estimation_markup_template,group_cost_estimation_manager,1,1,1,1
+access_sizing_wizard_user,cost.estimate.sizing.wizard.user,model_cost_estimate_sizing_wizard,group_cost_estimation_user,1,1,1,1
+access_reject_wizard_manager,cost.estimate.reject.wizard.manager,model_cost_estimate_reject_wizard,group_cost_estimation_manager,1,1,1,1

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_cost_estimation_rate_tree" model="ir.ui.view">
+        <field name="name">cost.estimation.rate.tree</field>
+        <field name="model">cost.estimation.rate</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Card" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="hourly_rate"/>
+                <field name="currency_id" groups="base.group_multi_currency"/>
+                <field name="note" optional="show"/>
+                <field name="active" widget="boolean_toggle" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_cost_estimation_rate" model="ir.actions.act_window">
+        <field name="name">Rate Card</field>
+        <field name="res_model">cost.estimation.rate</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+</odoo>

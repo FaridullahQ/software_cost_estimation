@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============ Sizing Advisor ============ -->
+    <record id="view_cost_estimate_sizing_wizard_form" model="ir.ui.view">
+        <field name="name">cost.estimate.sizing.wizard.form</field>
+        <field name="model">cost.estimate.sizing.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sizing Advisor">
+                <sheet>
+                    <field name="estimate_id" invisible="1"/>
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fa fa-magic fa-lg me-2" aria-hidden="true"/>
+                        <span>Answer a few questions and the advisor recommends a
+                        <b>Scope</b>, <b>Technology Variance</b> and
+                        <b>Architecture</b> you can apply to the estimate.</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header py-2">
+                                    <i class="fa fa-cubes me-2" aria-hidden="true"/>Size Drivers
+                                </div>
+                                <div class="card-body">
+                                    <group>
+                                        <field name="num_entities"/>
+                                        <field name="num_modules"/>
+                                        <field name="num_integrations"/>
+                                        <field name="num_users"/>
+                                        <field name="data_volume" widget="radio"
+                                               options="{'horizontal': True}"/>
+                                    </group>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header py-2">
+                                    <i class="fa fa-shield me-2" aria-hidden="true"/>Risk &amp; Architecture Drivers
+                                </div>
+                                <div class="card-body">
+                                    <group>
+                                        <field name="team_familiarity" widget="radio"
+                                               options="{'horizontal': True}"/>
+                                        <field name="uses_emerging_tech" widget="boolean_toggle"/>
+                                        <field name="needs_independent_scaling" widget="boolean_toggle"/>
+                                        <field name="multiple_teams" widget="boolean_toggle"/>
+                                    </group>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-info">
+                        <div class="card-header py-2 text-bg-info d-flex align-items-center">
+                            <i class="fa fa-lightbulb-o me-2" aria-hidden="true"/>
+                            <span class="fw-bold">Recommendation</span>
+                            <span class="ms-auto">Size score:
+                                <field name="size_score" nolabel="1" class="badge text-bg-light"/>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center g-2">
+                                <div class="col-4">
+                                    <div class="text-muted small mb-1">SCOPE</div>
+                                    <field name="recommended_scope" widget="badge" nolabel="1"
+                                           decoration-success="recommended_scope == 'small'"
+                                           decoration-warning="recommended_scope == 'medium'"
+                                           decoration-danger="recommended_scope == 'large'"/>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted small mb-1">TECH VARIANCE</div>
+                                    <field name="recommended_tech_variance" widget="badge" nolabel="1"
+                                           decoration-success="recommended_tech_variance == 'level1'"
+                                           decoration-warning="recommended_tech_variance == 'level2'"
+                                           decoration-danger="recommended_tech_variance == 'level3'"/>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted small mb-1">ARCHITECTURE</div>
+                                    <field name="recommended_architecture" widget="badge" nolabel="1"
+                                           decoration-info="recommended_architecture == 'monolith'"
+                                           decoration-warning="recommended_architecture == 'hybrid'"
+                                           decoration-primary="recommended_architecture == 'microservices'"/>
+                                </div>
+                            </div>
+                            <div class="alert alert-light d-flex mt-3 mb-0">
+                                <i class="fa fa-info-circle me-2 mt-1" aria-hidden="true"/>
+                                <field name="rationale" nolabel="1" readonly="1"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_apply" type="object" string="Apply to Estimate"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============ Reject ============ -->
+    <record id="view_cost_estimate_reject_wizard_form" model="ir.ui.view">
+        <field name="name">cost.estimate.reject.wizard.form</field>
+        <field name="model">cost.estimate.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Estimate">
+                <sheet>
+                    <field name="estimate_id" invisible="1"/>
+                    <group>
+                        <field name="reason" placeholder="Explain why this estimate is being rejected..."/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_reject" type="object" string="Reject"
+                            class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

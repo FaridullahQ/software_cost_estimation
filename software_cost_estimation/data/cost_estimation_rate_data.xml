@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="rate_sr_re" model="cost.estimation.rate">
+        <field name="name">Sr. Requirements Engineer</field>
+        <field name="code">RE</field>
+        <field name="sequence">10</field>
+        <field name="hourly_rate">15.0</field>
+    </record>
+
+    <record id="rate_sr_sa" model="cost.estimation.rate">
+        <field name="name">Sr. System Analyst</field>
+        <field name="code">SA</field>
+        <field name="sequence">20</field>
+        <field name="hourly_rate">15.0</field>
+    </record>
+
+    <record id="rate_developer" model="cost.estimation.rate">
+        <field name="name">Software Developer</field>
+        <field name="code">DEV</field>
+        <field name="sequence">30</field>
+        <field name="hourly_rate">15.0</field>
+    </record>
+
+    <record id="rate_qa" model="cost.estimation.rate">
+        <field name="name">QA Engineer</field>
+        <field name="code">QA</field>
+        <field name="sequence">40</field>
+        <field name="hourly_rate">12.0</field>
+    </record>
+
+    <record id="rate_pm" model="cost.estimation.rate">
+        <field name="name">Project Manager</field>
+        <field name="code">PM</field>
+        <field name="sequence">50</field>
+        <field name="hourly_rate">20.0</field>
+    </record>
+
+</odoo>

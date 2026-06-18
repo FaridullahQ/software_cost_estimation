@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================= FORM ================= -->
+    <record id="view_cost_estimate_form" model="ir.ui.view">
+        <field name="name">cost.estimate.form</field>
+        <field name="model">cost.estimate</field>
+        <field name="arch" type="xml">
+            <form string="Cost Estimate">
+                <header>
+                    <button name="action_open_sizing_wizard" type="object"
+                            string="Sizing Advisor"
+                            class="btn-secondary"
+                            invisible="state != 'draft'"
+                            help="Recommend scope, technology variance and architecture from concrete numbers."/>
+                    <button name="action_load_template" type="object"
+                            string="Load Standard Template"
+                            class="btn-secondary"
+                            invisible="state != 'draft'"
+                            help="Populate labour phases and the full driver catalog."/>
+                    <button name="action_submit" type="object"
+                            string="Submit for Review" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object"
+                            string="Approve" class="btn-primary"
+                            groups="software_cost_estimation.group_cost_estimation_manager"
+                            invisible="state != 'review'"/>
+                    <button name="action_open_reject_wizard" type="object"
+                            string="Reject"
+                            groups="software_cost_estimation.group_cost_estimation_manager"
+                            invisible="state != 'review'"/>
+                    <button name="action_reset" type="object"
+                            string="Reset to Draft"
+                            invisible="state not in ('review', 'approved', 'rejected', 'cancel')"/>
+                    <button name="action_cancel" type="object"
+                            string="Cancel"
+                            invisible="state not in ('draft', 'review')"/>
+                    <button name="action_print_report" type="object"
+                            string="Print" class="btn-secondary"
+                            invisible="state == 'cancel'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,review,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1><field name="title" placeholder="e.g. Inventory Management System - Afghan Telecom"/></h1>
+                        <span class="text-muted"><field name="name" readonly="1"/></span>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="system_name"/>
+                            <field name="partner_id"/>
+                            <field name="user_id"/>
+                            <field name="estimate_date"/>
+                        </group>
+                        <group>
+                            <field name="scope"/>
+                            <field name="duration_months"/>
+                            <field name="architecture"/>
+                            <field name="tech_variance"/>
+                            <field name="license_cost"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Labour (Pre-Development)" name="labor">
+                            <field name="labor_line_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="role_id"/>
+                                    <field name="responsible" optional="show"/>
+                                    <field name="persons"/>
+                                    <field name="working_days"/>
+                                    <field name="hours_per_day" optional="hide"/>
+                                    <field name="hourly_rate"/>
+                                    <field name="person_hours" readonly="1" optional="show"/>
+                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="labor_cost"/>
+                            </group>
+                        </page>
+                        <page string="Development Drivers" name="dev">
+                            <field name="dev_line_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="catalog_id" optional="show"/>
+                                    <field name="name"/>
+                                    <field name="category" optional="show"/>
+                                    <field name="calc_method"/>
+                                    <field name="count"/>
+                                    <field name="complexity"
+                                           readonly="calc_method != 'count_complexity_rate'"/>
+                                    <field name="included"
+                                           readonly="calc_method != 'toggle'"/>
+                                    <field name="unit_rate"/>
+                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="note" optional="hide"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="dev_catalog_cost"/>
+                            </group>
+                        </page>
+                        <page string="Markups &amp; Maintenance" name="markups">
+                            <group>
+                                <group>
+                                    <field name="markup_base_mode" widget="radio"/>
+                                    <field name="manual_markup_base"
+                                           invisible="markup_base_mode != 'manual'"
+                                           required="markup_base_mode == 'manual'"/>
+                                </group>
+                                <div class="text-muted" colspan="2"
+                                     invisible="markup_base_mode != 'manual'">
+                                    Manual mode: every markup line uses the single
+                                    base above. You can also type it directly in the
+                                    <b>Base</b> column on any line - it updates the
+                                    shared base for all lines. The <b>Applied On</b>
+                                    pool is ignored.
+                                </div>
+                            </group>
+                            <field name="markup_line_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="base_mode" column_invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="base"
+                                           readonly="base_mode == 'manual'"/>
+                                    <field name="base_amount"
+                                           readonly="base_mode != 'manual'"/>
+                                    <field name="percent"/>
+                                    <field name="is_recurring"/>
+                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Risk &amp; Negotiation" name="risk">
+                            <group>
+                                <group string="Risk Band (Three-Point / PERT)">
+                                    <field name="contingency_percent"/>
+                                    <field name="optimistic_pct"/>
+                                    <field name="pessimistic_pct"/>
+                                    <field name="optimistic_total" readonly="1"/>
+                                    <field name="expected_total" readonly="1"/>
+                                    <field name="pessimistic_total" readonly="1"/>
+                                </group>
+                                <group string="Negotiation">
+                                    <field name="approved_amount"/>
+                                    <field name="variance" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes / Assumptions" name="notes">
+                            <field name="note" placeholder="Document assumptions, exclusions, sources..."/>
+                        </page>
+                    </notebook>
+
+                    <group class="oe_subtotal_footer oe_right" name="totals">
+                        <field name="tdc"/>
+                        <field name="scope_cost"/>
+                        <field name="duration_cost"/>
+                        <field name="markup_one_time"/>
+                        <field name="contingency_amount"/>
+                        <field name="total_one_time"
+                               class="oe_subtotal_footer_separator"/>
+                        <field name="maintenance_annual"/>
+                        <div class="oe_subtotal_footer_separator">
+                            <label for="grand_total"/>
+                            <field name="grand_total" nolabel="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </div>
+                    </group>
+                    <div class="clearfix"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================= TREE ================= -->
+    <record id="view_cost_estimate_tree" model="ir.ui.view">
+        <field name="name">cost.estimate.tree</field>
+        <field name="model">cost.estimate</field>
+        <field name="arch" type="xml">
+            <tree string="Cost Estimates"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'review'"
+                  decoration-bf="state == 'approved'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="estimate_date"/>
+                <field name="scope" optional="show"/>
+                <field name="architecture" optional="hide"/>
+                <field name="tdc" optional="show"/>
+                <field name="total_one_time" optional="show"/>
+                <field name="grand_total" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'review'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-muted="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ================= KANBAN ================= -->
+    <record id="view_cost_estimate_kanban" model="ir.ui.view">
+        <field name="name">cost.estimate.kanban</field>
+        <field name="model">cost.estimate</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="grand_total"/>
+                <field name="currency_id"/>
+                <field name="partner_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <strong class="o_kanban_record_title">
+                                    <field name="title"/>
+                                </strong>
+                            </div>
+                            <div class="o_kanban_record_subtitle">
+                                <field name="name"/>
+                            </div>
+                            <div>
+                                <field name="partner_id"/>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <span class="o_kanban_record_total">
+                                    <field name="grand_total" widget="monetary"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ================= SEARCH ================= -->
+    <record id="view_cost_estimate_search" model="ir.ui.view">
+        <field name="name">cost.estimate.search</field>
+        <field name="model">cost.estimate</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="title"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <filter name="my" string="My Estimates"
+                        domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
+                <filter name="review" string="Under Review" domain="[('state','=','review')]"/>
+                <filter name="approved" string="Approved" domain="[('state','=','approved')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by':'state'}"/>
+                    <filter name="group_partner" string="Client" context="{'group_by':'partner_id'}"/>
+                    <filter name="group_user" string="Estimator" context="{'group_by':'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cost_estimate" model="ir.actions.act_window">
+        <field name="name">Cost Estimates</field>
+        <field name="res_model">cost.estimate</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="search_view_id" ref="view_cost_estimate_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first cost estimate</p>
+            <p>Build a driver-based parametric estimate for a software / information-system project.</p>
+        </field>
+    </record>
+
+</odoo>

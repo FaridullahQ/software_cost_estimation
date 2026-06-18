@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_cost_estimate">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row mb16">
+                            <div class="col-12 text-center">
+                                <h2 style="margin-bottom:0;">Information Systems Cost Estimation</h2>
+                                <h4 class="text-muted" style="margin-top:2px;">
+                                    <span t-field="doc.title"/>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="row mb16">
+                            <div class="col-6">
+                                <strong>Reference:</strong> <span t-field="doc.name"/><br/>
+                                <strong>Client:</strong> <span t-field="doc.partner_id"/><br/>
+                                <strong>System:</strong> <span t-field="doc.system_name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Date:</strong> <span t-field="doc.estimate_date"/><br/>
+                                <strong>Estimator:</strong> <span t-field="doc.user_id"/><br/>
+                                <strong>Status:</strong> <span t-field="doc.state"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm mb16">
+                            <thead>
+                                <tr>
+                                    <th>Scope</th><th>Duration</th><th>Architecture</th>
+                                    <th>Tech Variance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span t-field="doc.scope"/></td>
+                                    <td><span t-field="doc.duration_months"/> months</td>
+                                    <td><span t-field="doc.architecture"/></td>
+                                    <td><span t-field="doc.tech_variance"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Labour (Pre-Development)</h4>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th><th>Responsible</th>
+                                    <th class="text-end">Persons</th>
+                                    <th class="text-end">Days</th>
+                                    <th class="text-end">Person-Hours</th>
+                                    <th class="text-end">Rate</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.labor_line_ids" t-as="l">
+                                    <td><span t-field="l.name"/></td>
+                                    <td><span t-field="l.responsible"/></td>
+                                    <td class="text-end"><span t-field="l.persons"/></td>
+                                    <td class="text-end"><span t-field="l.working_days"/></td>
+                                    <td class="text-end"><span t-field="l.person_hours"/></td>
+                                    <td class="text-end"><span t-field="l.hourly_rate"/></td>
+                                    <td class="text-end"><span t-field="l.amount"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Development Drivers</h4>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Driver</th><th>Method</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">Complexity</th>
+                                    <th class="text-end">Unit Rate</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.dev_line_ids" t-as="d">
+                                    <td><span t-field="d.name"/></td>
+                                    <td><span t-field="d.calc_method"/></td>
+                                    <td class="text-end"><span t-field="d.count"/></td>
+                                    <td class="text-end"><span t-field="d.complexity"/></td>
+                                    <td class="text-end"><span t-field="d.unit_rate"/></td>
+                                    <td class="text-end"><span t-field="d.amount"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Markups &amp; Maintenance</h4>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th><th>Base</th>
+                                    <th class="text-end">%</th>
+                                    <th class="text-center">Recurring</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.markup_line_ids" t-as="m">
+                                    <td><span t-field="m.name"/></td>
+                                    <td><span t-field="m.base"/></td>
+                                    <td class="text-end"><span t-field="m.percent"/>%</td>
+                                    <td class="text-center">
+                                        <span t-if="m.is_recurring">Yes</span>
+                                        <span t-else="">No</span>
+                                    </td>
+                                    <td class="text-end"><span t-field="m.amount"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-6"/>
+                            <div class="col-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Total Development Cost (TDC)</td>
+                                        <td class="text-end"><span t-field="doc.tdc"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Scope</td>
+                                        <td class="text-end"><span t-field="doc.scope_cost"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duration</td>
+                                        <td class="text-end"><span t-field="doc.duration_cost"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>One-time Markups</td>
+                                        <td class="text-end"><span t-field="doc.markup_one_time"/></td>
+                                    </tr>
+                                    <tr t-if="doc.contingency_amount">
+                                        <td>Contingency</td>
+                                        <td class="text-end"><span t-field="doc.contingency_amount"/></td>
+                                    </tr>
+                                    <tr style="border-top:1px solid #000;">
+                                        <td><strong>One-time Total (CapEx)</strong></td>
+                                        <td class="text-end"><strong><span t-field="doc.total_one_time"/></strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Annual Maintenance (OpEx)</td>
+                                        <td class="text-end"><span t-field="doc.maintenance_annual"/></td>
+                                    </tr>
+                                    <tr style="border-top:2px solid #000;">
+                                        <td><strong>Grand Total (Year 1)</strong></td>
+                                        <td class="text-end"><strong><span t-field="doc.grand_total"/></strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <p class="text-muted mt16" style="font-size:10px;">
+                            Risk band (PERT): Optimistic <span t-field="doc.optimistic_total"/>
+                            / Expected <span t-field="doc.expected_total"/>
+                            / Pessimistic <span t-field="doc.pessimistic_total"/>.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
