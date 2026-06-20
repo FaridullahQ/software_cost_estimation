@@ -9,7 +9,7 @@
             <form string="Sizing Advisor">
                 <sheet>
                     <field name="estimate_id" invisible="1"/>
-                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <div class="alert alert-primary d-flex align-items-center" role="alert">
                         <i class="fa fa-magic fa-lg me-2" aria-hidden="true"/>
                         <span>Answer a few questions and the advisor recommends a
                         <b>Scope</b>, <b>Technology Variance</b> and
@@ -50,8 +50,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card border-info">
-                        <div class="card-header py-2 text-bg-info d-flex align-items-center">
+                    <div class="card border-primary">
+                        <div class="card-header py-2 text-bg-primary d-flex align-items-center">
                             <i class="fa fa-lightbulb-o me-2" aria-hidden="true"/>
                             <span class="fw-bold">Recommendation</span>
                             <span class="ms-auto">Size score:
