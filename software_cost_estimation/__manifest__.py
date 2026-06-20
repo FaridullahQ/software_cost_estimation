@@ -30,7 +30,7 @@ Key capabilities
 * Professional QWeb PDF estimate report.
 """,
     # Author / publisher
-    "author": "Faridullah Qaderi & Hameed Masjedi",
+    "author": "Faridullah Qaderi",
     "website": "https://www.linkedin.com/in/faridullah-qaderi-114405330",
     "maintainer": "FOITECH - Digital Solutions",
     # Support contact
