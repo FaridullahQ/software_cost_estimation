@@ -60,27 +60,27 @@
                         </div>
                         <div class="card-body">
                             <div class="row text-center g-2">
-                                <div class="col-4">
+                                <div class="col-6">
                                     <div class="text-muted small mb-1">SCOPE</div>
                                     <field name="recommended_scope" widget="badge" nolabel="1"
                                            decoration-success="recommended_scope == 'small'"
                                            decoration-warning="recommended_scope == 'medium'"
                                            decoration-danger="recommended_scope == 'large'"/>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <div class="text-muted small mb-1">TECH VARIANCE</div>
                                     <field name="recommended_tech_variance" widget="badge" nolabel="1"
                                            decoration-success="recommended_tech_variance == 'level1'"
                                            decoration-warning="recommended_tech_variance == 'level2'"
                                            decoration-danger="recommended_tech_variance == 'level3'"/>
                                 </div>
-                                <div class="col-4">
-                                    <div class="text-muted small mb-1">ARCHITECTURE</div>
-                                    <field name="recommended_architecture" widget="badge" nolabel="1"
-                                           decoration-info="recommended_architecture == 'monolith'"
-                                           decoration-warning="recommended_architecture == 'hybrid'"
-                                           decoration-primary="recommended_architecture == 'microservices'"/>
-                                </div>
+<!--                                <div class="col-4">-->
+<!--                                    <div class="text-muted small mb-1">ARCHITECTURE</div>-->
+<!--                                    <field name="recommended_architecture" widget="badge" nolabel="1"-->
+<!--                                           decoration-info="recommended_architecture == 'monolith'"-->
+<!--                                           decoration-warning="recommended_architecture == 'hybrid'"-->
+<!--                                           decoration-primary="recommended_architecture == 'microservices'"/>-->
+<!--                                </div>-->
                             </div>
                             <div class="alert alert-light d-flex mt-3 mb-0">
                                 <i class="fa fa-info-circle me-2 mt-1" aria-hidden="true"/>
@@ -113,6 +113,45 @@
                 <footer>
                     <button name="action_reject" type="object" string="Reject"
                             class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- ============ Apply Discount ============ -->
+    <record id="view_cost_estimate_discount_wizard_form" model="ir.ui.view">
+        <field name="name">cost.estimate.discount.wizard.form</field>
+        <field name="model">cost.estimate.discount.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Apply Discount">
+                <sheet>
+                    <field name="estimate_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="fa fa-exclamation-triangle fa-lg me-2" aria-hidden="true"/>
+                        <span>A discount cannot be applied without a reason and
+                        either a reference or an official supporting document.
+                        The justification is recorded in the chatter for audit.</span>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="price_before"/>
+                            <field name="discount_type" widget="radio"
+                                   options="{'horizontal': True}"/>
+                            <field name="discount_value"/>
+                        </group>
+                    </group>
+                    <group string="Justification (required)">
+                        <field name="reason" required="1"
+                               placeholder="Why is this discount being granted?"/>
+                        <field name="reference"
+                               placeholder="Approval memo no., contract clause, ticket..."/>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_apply" type="object" string="Apply Discount"
+                            class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

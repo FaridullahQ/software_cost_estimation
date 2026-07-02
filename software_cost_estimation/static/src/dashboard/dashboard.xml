@@ -46,6 +46,12 @@
                             <option t-att-value="a.value"><t t-esc="a.label"/></option>
                         </t>
                     </select>
+                    <select class="form-select form-select-sm"
+                            t-on-change="(ev) => this.onFilterChange('estimate_type', ev.target.value)">
+                        <t t-foreach="state.data ? state.data.filters.estimate_types : []" t-as="et" t-key="et.value">
+                            <option t-att-value="et.value" t-att-selected="state.filters.estimate_type === et.value"><t t-esc="et.label"/></option>
+                        </t>
+                    </select>
                     <button class="btn btn-sm btn-secondary" t-on-click="() => this.loadData()">
                         <i class="fa fa-refresh"/>
                     </button>
@@ -62,12 +68,14 @@
                     <div class="o_sce_kpi">
                         <div class="o_sce_kpi_label">Total pipeline</div>
                         <div class="o_sce_kpi_value"><t t-esc="formatCurrency(state.data.kpi.total_value)"/></div>
-                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.count"/> estimates</div>
+                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.count"/>
+                            estimates</div>
                     </div>
                     <div class="o_sce_kpi">
                         <div class="o_sce_kpi_label">Approved value</div>
                         <div class="o_sce_kpi_value text-success"><t t-esc="formatCurrency(state.data.kpi.approved_value)"/></div>
-                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.approved_count"/> approved</div>
+                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.approved_count"/>
+                            approved</div>
                     </div>
                     <div class="o_sce_kpi">
                         <div class="o_sce_kpi_label">Avg estimate</div>
@@ -82,12 +90,20 @@
                     <div class="o_sce_kpi">
                         <div class="o_sce_kpi_label">Approval rate</div>
                         <div class="o_sce_kpi_value"><t t-esc="Math.round(state.data.kpi.approval_rate)"/>%</div>
-                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.pending_count"/> pending · <t t-esc="formatCurrency(state.data.kpi.pending_value)"/></div>
+                        <div class="o_sce_kpi_sub"><t t-esc="state.data.kpi.pending_count"/>
+                            pending ·
+                            <t t-esc="formatCurrency(state.data.kpi.pending_value)"/></div>
                     </div>
                     <div class="o_sce_kpi">
                         <div class="o_sce_kpi_label">Total effort</div>
                         <div class="o_sce_kpi_value"><t t-esc="formatNumber(state.data.kpi.effort_hours)"/></div>
                         <div class="o_sce_kpi_sub">person-hours</div>
+                    </div>
+                    <div class="o_sce_kpi">
+                        <div class="o_sce_kpi_label">Independent projects</div>
+                        <div class="o_sce_kpi_value"><t t-esc="formatNumber(state.data.kpi.independent_count)"/></div>
+                        <div class="o_sce_kpi_sub"><t t-esc="formatNumber(state.data.kpi.sub_module_count)"/>
+                            sub-modules</div>
                     </div>
                 </div>
 
@@ -116,7 +132,8 @@
                     <div class="o_sce_card">
                         <div class="o_sce_card_title o_sce_card_title_row">
                             <span>Top projects by value</span>
-                            <span class="o_sce_hint"><i class="fa fa-arrows-v"/> scroll</span>
+                            <span class="o_sce_hint"><i class="fa fa-arrows-v"/>
+                                scroll</span>
                         </div>
                         <div class="o_sce_scroll">
                             <t t-if="!state.data.top_projects.length">
@@ -141,18 +158,22 @@
                     <div class="o_sce_card o_sce_col2">
                         <div class="o_sce_card_title o_sce_card_title_row">
                             <span>Recent estimates</span>
-                            <span class="o_sce_hint" t-on-click="() => this.openList()">View all <i class="fa fa-arrow-right"/></span>
+                            <span class="o_sce_hint" t-on-click="() => this.openList()">View all <i
+                                    class="fa fa-arrow-right"/></span>
                         </div>
                         <div class="o_sce_scroll">
                             <t t-foreach="state.data.recent" t-as="r" t-key="r.id">
                                 <div class="o_sce_recent" t-on-click="() => this.openEstimate(r.id)">
                                     <div class="o_sce_recent_main">
                                         <div class="o_sce_recent_title"><t t-esc="r.title"/></div>
-                                        <div class="o_sce_recent_sub"><t t-esc="r.partner"/> · <t t-esc="r.ref"/></div>
+                                        <div class="o_sce_recent_sub"><t t-esc="r.partner"/>
+                                            ·
+                                            <t t-esc="r.ref"/></div>
                                     </div>
                                     <div class="o_sce_recent_right">
                                         <span class="o_sce_value"><t t-esc="formatCurrency(r.value)"/></span>
-                                        <span class="o_sce_badge" t-attf-style="background: {{r.state_color}}22; color: {{r.state_color}};">
+                                        <span class="o_sce_badge"
+                                              t-attf-style="background: {{r.state_color}}22; color: {{r.state_color}};">
                                             <t t-esc="r.state_label"/>
                                         </span>
                                     </div>
@@ -171,17 +192,27 @@
                         </select>
                         <t t-if="state.detail">
                             <div class="o_sce_detail_grid">
-                                <div><span>TDC</span><b><t t-esc="formatCurrency(state.detail.tdc)"/></b></div>
-                                <div><span>CapEx</span><b><t t-esc="formatCurrency(state.detail.capex)"/></b></div>
-                                <div><span>OpEx / yr</span><b><t t-esc="formatCurrency(state.detail.opex)"/></b></div>
-                                <div><span>Grand total</span><b><t t-esc="formatCurrency(state.detail.grand_total)"/></b></div>
-                                <div><span>Variance</span><b><t t-esc="formatCurrency(state.detail.variance)"/></b></div>
-                                <div><span>Effort (h)</span><b><t t-esc="formatNumber(state.detail.effort_hours)"/></b></div>
+                                <div><span>Type</span>
+                                    <b><t t-esc="state.detail.estimate_type_label"/></b></div>
+                                <div><span>TDC</span>
+                                    <b><t t-esc="formatCurrency(state.detail.tdc)"/></b></div>
+                                <div><span>CapEx</span>
+                                    <b><t t-esc="formatCurrency(state.detail.capex)"/></b></div>
+                                <div><span>OpEx / yr</span>
+                                    <b><t t-esc="formatCurrency(state.detail.opex)"/></b></div>
+                                <div><span>Grand total</span>
+                                    <b><t t-esc="formatCurrency(state.detail.grand_total)"/></b></div>
+                                <div><span>Variance</span>
+                                    <b><t t-esc="formatCurrency(state.detail.variance)"/></b></div>
+                                <div><span>Effort (h)</span>
+                                    <b><t t-esc="formatNumber(state.detail.effort_hours)"/></b></div>
                             </div>
                             <div class="o_sce_pert">
                                 PERT: <t t-esc="formatCurrency(state.detail.optimistic)"/>
-                                / <t t-esc="formatCurrency(state.detail.expected)"/>
-                                / <t t-esc="formatCurrency(state.detail.pessimistic)"/>
+                                /
+                                <t t-esc="formatCurrency(state.detail.expected)"/>
+                                /
+                                <t t-esc="formatCurrency(state.detail.pessimistic)"/>
                             </div>
                             <div class="o_sce_chart o_sce_chart_sm"><canvas t-ref="detailChart"/></div>
                         </t>

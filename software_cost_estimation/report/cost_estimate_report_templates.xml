@@ -27,11 +27,23 @@
                             </div>
                         </div>
 
-                        <table class="table table-sm mb16">
+                        <div t-if="doc.estimate_type == 'sub_module'"
+                             class="alert alert-info" role="alert">
+                            <strong>Sub-Module of:</strong>
+                            <span t-field="doc.parent_estimate_id.title"/>
+                            (<span t-field="doc.parent_estimate_id.name"/>).
+                            Shared parameters (scope, duration, architecture,
+                            technology variance and stack) and all shared one-time
+                            costs are accounted on the parent project; only this
+                            sub-module's build effort is shown below.
+                        </div>
+
+                        <table t-if="doc.estimate_type != 'sub_module'"
+                               class="table table-sm mb16">
                             <thead>
                                 <tr>
                                     <th>Scope</th><th>Duration</th><th>Architecture</th>
-                                    <th>Tech Variance</th>
+                                    <th>Tech Variance</th><th>Stack</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -40,6 +52,7 @@
                                     <td><span t-field="doc.duration_months"/> months</td>
                                     <td><span t-field="doc.architecture"/></td>
                                     <td><span t-field="doc.tech_variance"/></td>
+                                    <td><span t-field="doc.stack_id"/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -92,8 +105,9 @@
                             </tbody>
                         </table>
 
-                        <h4>Markups &amp; Maintenance</h4>
-                        <table class="table table-sm o_main_table">
+                        <h4 t-if="doc.estimate_type != 'sub_module'">Markups &amp; Maintenance</h4>
+                        <table t-if="doc.estimate_type != 'sub_module'"
+                               class="table table-sm o_main_table">
                             <thead>
                                 <tr>
                                     <th>Item</th><th>Base</th>
@@ -116,47 +130,203 @@
                             </tbody>
                         </table>
 
-                        <div class="row">
-                            <div class="col-6"/>
-                            <div class="col-6">
-                                <table class="table table-sm">
+                        <t t-if="doc.estimate_type != 'sub_module' and doc.child_count">
+                            <h4>Linked Sub-Modules (Build Effort)</h4>
+                            <table class="table table-sm o_main_table">
+                                <thead>
                                     <tr>
-                                        <td>Total Development Cost (TDC)</td>
-                                        <td class="text-end"><span t-field="doc.tdc"/></td>
+                                        <th>Sub-Module</th>
+                                        <th>Reference</th>
+                                        <th class="text-end">Labour</th>
+                                        <th class="text-end">Development</th>
+                                        <th class="text-end">Build Effort</th>
                                     </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.child_estimate_ids" t-as="s">
+                                        <td>
+                                            <span t-if="s.system_name" t-field="s.system_name"/>
+                                            <span t-else="" t-field="s.title"/>
+                                        </td>
+                                        <td><span t-field="s.name"/></td>
+                                        <td class="text-end"><span t-field="s.labor_cost"/></td>
+                                        <td class="text-end"><span t-field="s.dev_catalog_cost"/></td>
+                                        <td class="text-end"><span t-field="s.build_effort"/></td>
+                                    </tr>
+                                    <tr style="border-top:1px solid #adb5bd;">
+                                        <td colspan="4"><strong>Total Sub-Modules Build Effort</strong></td>
+                                        <td class="text-end"><strong><span t-field="doc.child_build_total"/></strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="text-muted" style="font-size:10px;">
+                                Sub-module build effort folds into the Total
+                                Development Cost (TDC) below, so this project's
+                                markups and contingency are applied once over the
+                                consolidated build.
+                            </p>
+                        </t>
+
+                        <t t-if="doc.has_components">
+                            <h4>Reusable Components (Rolled In)</h4>
+                            <table class="table table-sm o_main_table">
+                                <thead>
                                     <tr>
-                                        <td>Scope</td>
-                                        <td class="text-end"><span t-field="doc.scope_cost"/></td>
+                                        <th>System / Product</th>
+                                        <th>Reference</th>
+                                        <th class="text-end">Allocation %</th>
+                                        <th class="text-end">CapEx</th>
+                                        <th class="text-end">OpEx</th>
+                                        <th class="text-end">Year-1</th>
                                     </tr>
-                                    <tr>
-                                        <td>Duration</td>
-                                        <td class="text-end"><span t-field="doc.duration_cost"/></td>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.component_ids" t-as="c">
+                                        <td>
+                                            <span t-if="c.sub_system_name" t-field="c.sub_system_name"/>
+                                            <span t-else="" t-field="c.sub_title"/>
+                                        </td>
+                                        <td><span t-field="c.sub_estimate_id.name"/></td>
+                                        <td class="text-end"><span t-field="c.allocation_percent"/>%</td>
+                                        <td class="text-end"><span t-field="c.allocated_capex"/></td>
+                                        <td class="text-end"><span t-field="c.allocated_opex"/></td>
+                                        <td class="text-end"><span t-field="c.allocated_total"/></td>
                                     </tr>
-                                    <tr>
-                                        <td>One-time Markups</td>
-                                        <td class="text-end"><span t-field="doc.markup_one_time"/></td>
-                                    </tr>
-                                    <tr t-if="doc.contingency_amount">
-                                        <td>Contingency</td>
-                                        <td class="text-end"><span t-field="doc.contingency_amount"/></td>
-                                    </tr>
-                                    <tr style="border-top:1px solid #000;">
-                                        <td><strong>One-time Total (CapEx)</strong></td>
-                                        <td class="text-end"><strong><span t-field="doc.total_one_time"/></strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Annual Maintenance (OpEx)</td>
-                                        <td class="text-end"><span t-field="doc.maintenance_annual"/></td>
-                                    </tr>
-                                    <tr style="border-top:2px solid #000;">
-                                        <td><strong>Grand Total (Year 1)</strong></td>
-                                        <td class="text-end"><strong><span t-field="doc.grand_total"/></strong></td>
-                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <div class="row mt16">
+                            <div class="col-5"/>
+                            <div class="col-7">
+                                <table class="table table-sm" style="border:1px solid #dee2e6;">
+                                    <thead>
+                                        <tr style="background-color:#f8f9fa;">
+                                            <th colspan="2" style="font-size:12px;">Cost Summary</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- ============ Sub-module summary ============ -->
+                                        <t t-if="doc.estimate_type == 'sub_module'">
+                                            <tr t-if="doc.stack_adjustment">
+                                                <td>Stack Productivity Adjustment
+                                                    (inherited:
+                                                    <span t-field="doc.parent_stack_id"/>)</td>
+                                                <td class="text-end"><span t-field="doc.stack_adjustment"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Labour (Pre-Development)</td>
+                                                <td class="text-end"><span t-field="doc.labor_cost"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Development Catalog</td>
+                                                <td class="text-end"><span t-field="doc.dev_catalog_cost"/></td>
+                                            </tr>
+                                            <tr style="background-color:#f1f3f5;border-top:2px solid #000;">
+                                                <td style="font-size:13px;">
+                                                    <strong>Sub-Module Build Effort</strong></td>
+                                                <td class="text-end" style="font-size:13px;">
+                                                    <strong><span t-field="doc.build_effort"/></strong></td>
+                                            </tr>
+                                        </t>
+
+                                        <!-- ========== Independent project summary ========== -->
+                                        <t t-if="doc.estimate_type != 'sub_module'">
+                                            <tr t-if="doc.stack_adjustment">
+                                                <td>Stack Productivity Adjustment
+                                                    (<span t-field="doc.stack_id"/>)</td>
+                                                <td class="text-end"><span t-field="doc.stack_adjustment"/></td>
+                                            </tr>
+                                            <t t-if="doc.child_count">
+                                                <tr>
+                                                    <td>Own Build Effort</td>
+                                                    <td class="text-end"><span t-field="doc.build_effort"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Sub-Modules Build Effort</td>
+                                                    <td class="text-end"><span t-field="doc.child_build_total"/></td>
+                                                </tr>
+                                            </t>
+                                            <tr>
+                                                <td>Total Development Cost (TDC)</td>
+                                                <td class="text-end"><span t-field="doc.tdc"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Scope</td>
+                                                <td class="text-end"><span t-field="doc.scope_cost"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Duration</td>
+                                                <td class="text-end"><span t-field="doc.duration_cost"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>One-time Markups</td>
+                                                <td class="text-end"><span t-field="doc.markup_one_time"/></td>
+                                            </tr>
+                                            <tr t-if="doc.contingency_amount">
+                                                <td>Contingency</td>
+                                                <td class="text-end"><span t-field="doc.contingency_amount"/></td>
+                                            </tr>
+                                            <tr style="border-top:1px solid #adb5bd;">
+                                                <td>One-time Total (CapEx)</td>
+                                                <td class="text-end"><span t-field="doc.total_one_time"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Annual Maintenance (OpEx)</td>
+                                                <td class="text-end"><span t-field="doc.maintenance_annual"/></td>
+                                            </tr>
+                                            <tr style="border-top:1px solid #adb5bd;">
+                                                <td>
+                                                    <strong t-if="doc.has_components">Main Module Subtotal (Year 1)</strong>
+                                                    <strong t-else="">Grand Total (Year 1)</strong>
+                                                </td>
+                                                <td class="text-end"><strong><span t-field="doc.grand_total"/></strong></td>
+                                            </tr>
+                                            <t t-if="doc.has_components">
+                                                <tr>
+                                                    <td>Reusable Components &#8212; CapEx</td>
+                                                    <td class="text-end"><span t-field="doc.components_capex"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Reusable Components &#8212; Annual Maintenance</td>
+                                                    <td class="text-end"><span t-field="doc.components_opex"/></td>
+                                                </tr>
+                                                <tr style="border-top:1px solid #adb5bd;">
+                                                    <td><strong>Consolidated Total (Year 1)</strong></td>
+                                                    <td class="text-end"><strong><span t-field="doc.consolidated_total"/></strong></td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="doc.discount_amount">
+                                                <tr>
+                                                    <td>Discount</td>
+                                                    <td class="text-end">&#8722; <span t-field="doc.discount_amount"/></td>
+                                                </tr>
+                                            </t>
+                                            <tr style="background-color:#f1f3f5;border-top:2px solid #000;">
+                                                <td style="font-size:13px;">
+                                                    <strong t-if="doc.discount_amount">Final Price</strong>
+                                                    <strong t-elif="doc.has_components">Consolidated Total (Year 1)</strong>
+                                                    <strong t-else="">Grand Total (Year 1)</strong>
+                                                </td>
+                                                <td class="text-end" style="font-size:13px;">
+                                                    <strong><span t-field="doc.final_price"/></strong>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <p class="text-muted mt16" style="font-size:10px;">
+                        <t t-if="doc.discount_amount">
+                            <p class="text-muted" style="font-size:10px;">
+                                Discount justification: <span t-field="doc.discount_reason"/>
+                                <t t-if="doc.discount_reference"> (Ref: <span t-field="doc.discount_reference"/>)</t>
+                            </p>
+                        </t>
+
+                        <p t-if="doc.estimate_type != 'sub_module'"
+                           class="text-muted mt16" style="font-size:10px;">
                             Risk band (PERT): Optimistic <span t-field="doc.optimistic_total"/>
                             / Expected <span t-field="doc.expected_total"/>
                             / Pessimistic <span t-field="doc.pessimistic_total"/>.

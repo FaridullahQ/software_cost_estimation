@@ -19,11 +19,6 @@ STATE_COLORS = {
     "cancel": "#B4B2A9",
 }
 SCOPE_LABELS = {"small": "Small", "medium": "Medium", "large": "Large"}
-ARCH_LABELS = {
-    "monolith": "Monolith",
-    "hybrid": "Hybrid (Monolith Modular)",
-    "microservices": "Micro Services",
-}
 
 
 class CostEstimateDashboard(models.Model):
@@ -49,6 +44,10 @@ class CostEstimateDashboard(models.Model):
             domain.append(("scope", "=", filters["scope"]))
         if filters.get("architecture"):
             domain.append(("architecture", "=", filters["architecture"]))
+        if filters.get("estimate_type"):
+            domain.append(("estimate_type", "=", filters["estimate_type"]))
+        if filters.get("stack_id"):
+            domain.append(("stack_id", "=", int(filters["stack_id"])))
         if filters.get("user_id"):
             domain.append(("user_id", "=", int(filters["user_id"])))
         return domain
@@ -78,9 +77,24 @@ class CostEstimateDashboard(models.Model):
         pending_value = sum(pending.mapped("grand_total"))
         capex = sum(estimates.mapped("total_one_time"))
         opex = sum(estimates.mapped("maintenance_annual"))
+        discount_total = sum(estimates.mapped("discount_amount"))
+        net_value = sum(estimates.mapped("final_price"))
+        discounted_count = len(
+            estimates.filtered(lambda e: e.discount_amount > 0)
+        )
         effort = sum(estimates.mapped("labor_line_ids").mapped("person_hours"))
         avg_value = total_value / count if count else 0.0
         approval_rate = (len(approved) / count * 100.0) if count else 0.0
+        # Independent / sub-module mix is computed from the same scope but
+        # WITHOUT the estimate_type filter, so the tile still shows the linked
+        # sub-modules even while the dashboard is filtered to Independent Projects.
+        mix_filters = dict(filters)
+        mix_filters.pop("estimate_type", None)
+        scope_estimates = self.search(self._dashboard_domain(mix_filters))
+        independent = scope_estimates.filtered(
+            lambda e: e.estimate_type == "independent"
+        )
+        sub_modules = independent.mapped("child_estimate_ids")
 
         kpi = {
             "total_value": total_value,
@@ -91,9 +105,16 @@ class CostEstimateDashboard(models.Model):
             "pending_count": len(pending),
             "capex": capex,
             "opex": opex,
+            "discount_total": discount_total,
+            "net_value": net_value,
+            "discounted_count": discounted_count,
             "avg_value": avg_value,
             "approval_rate": approval_rate,
             "effort_hours": effort,
+            "independent_count": len(independent),
+            "sub_module_count": len(sub_modules),
+            "independent_value": round(sum(independent.mapped("grand_total")), 2),
+            "sub_module_value": round(sum(sub_modules.mapped("build_effort")), 2),
         }
 
         charts = {
@@ -226,14 +247,22 @@ class CostEstimateDashboard(models.Model):
         )
         partners = all_est.mapped("partner_id")
         users = all_est.mapped("user_id")
+        stacks = self.env["cost.estimation.stack"].search([])
+        # Derived from the model selections so they never drift out of sync.
+        arch_selection = self._fields["architecture"]._description_selection(self.env)
+        type_selection = self._fields["estimate_type"]._description_selection(self.env)
         return {
             "years": years,
             "projects": [{"id": p.id, "name": p.name} for p in partners],
             "users": [{"id": u.id, "name": u.name} for u in users],
+            "stacks": [{"id": s.id, "name": s.name} for s in stacks],
             "states": [{"value": k, "label": v} for k, v in STATE_LABELS.items()],
             "scopes": [{"value": k, "label": v} for k, v in SCOPE_LABELS.items()],
             "architectures": [
-                {"value": k, "label": v} for k, v in ARCH_LABELS.items()
+                {"value": k, "label": v} for k, v in arch_selection
+            ],
+            "estimate_types": [
+                {"value": k, "label": v} for k, v in type_selection
             ],
         }
 
@@ -243,14 +272,21 @@ class CostEstimateDashboard(models.Model):
         e = self.browse(int(estimate_id))
         if not e.exists():
             return {}
+        arch_labels = dict(
+            self._fields["architecture"]._description_selection(self.env)
+        )
+        type_labels = dict(
+            self._fields["estimate_type"]._description_selection(self.env)
+        )
         return {
             "id": e.id,
             "title": e.title or e.name,
             "ref": e.name,
             "partner": e.partner_id.name or "",
             "state_label": STATE_LABELS.get(e.state, e.state),
+            "estimate_type_label": type_labels.get(e.estimate_type, ""),
             "scope": SCOPE_LABELS.get(e.scope, ""),
-            "architecture": ARCH_LABELS.get(e.architecture, ""),
+            "architecture": arch_labels.get(e.architecture, ""),
             "tdc": round(e.tdc, 2),
             "capex": round(e.total_one_time, 2),
             "opex": round(e.maintenance_annual, 2),

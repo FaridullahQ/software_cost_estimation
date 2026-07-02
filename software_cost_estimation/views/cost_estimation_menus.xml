@@ -17,6 +17,10 @@
               parent="menu_cost_estimation_config"
               action="action_cost_estimation_rate" sequence="10"/>
 
+    <menuitem id="menu_cost_estimation_stack" name="Technology Stacks"
+              parent="menu_cost_estimation_config"
+              action="action_cost_estimation_stack" sequence="15"/>
+
     <menuitem id="menu_cost_estimation_catalog" name="Cost Driver Catalog"
               parent="menu_cost_estimation_config"
               action="action_cost_estimation_catalog" sequence="20"/>

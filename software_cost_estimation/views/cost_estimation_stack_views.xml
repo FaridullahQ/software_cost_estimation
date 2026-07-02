@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_cost_estimation_stack_tree" model="ir.ui.view">
+        <field name="name">cost.estimation.stack.tree</field>
+        <field name="model">cost.estimation.stack</field>
+        <field name="arch" type="xml">
+            <tree string="Technology Stacks" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code" optional="show"/>
+                <field name="productivity_factor"/>
+                <field name="note" optional="show"/>
+                <field name="active" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_cost_estimation_stack_form" model="ir.ui.view">
+        <field name="name">cost.estimation.stack.form</field>
+        <field name="model">cost.estimation.stack</field>
+        <field name="arch" type="xml">
+            <form string="Technology Stack">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Odoo, Spring Boot, ASP.NET Core"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="productivity_factor"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Guidance">
+                        <field name="note" nolabel="1"
+                               placeholder="When to choose this stack and how its factor was calibrated..."/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        The <b>productivity factor</b> scales Labour + Development
+                        Catalog. 1.0 is the baseline (hand-built backend + SPA).
+                        Below 1.0 means a more productive stack (e.g. Odoo ~0.60);
+                        above 1.0 means more effort for the same scope.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cost_estimation_stack" model="ir.actions.act_window">
+        <field name="name">Technology Stacks</field>
+        <field name="res_model">cost.estimation.stack</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Define your technology stacks</p>
+            <p>Each stack carries a productivity factor used to calibrate cost across Odoo, Spring Boot, ASP.NET and others.</p>
+        </field>
+    </record>
+
+</odoo>

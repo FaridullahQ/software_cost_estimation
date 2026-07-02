@@ -16,7 +16,7 @@
                             <field name="sce_monthly_rate"/>
                         </setting>
                         <setting string="Round Grand Total Up To"
-                                 help="Rounding increment applied to the final grand total.">
+                                 help="Rounding increment applied to the final grand total (default 100).">
                             <field name="sce_rounding"/>
                         </setting>
                     </block>
@@ -30,10 +30,31 @@
                         <setting string="Level Two"><field name="sce_tech_level2"/></setting>
                         <setting string="Level Three"><field name="sce_tech_level3"/></setting>
                     </block>
-                    <block title="System Architecture" name="sce_arch_block">
+                    <block title="System Architecture"
+                           name="sce_arch_block"
+                           help="Fixed cost added per architecture style, ascending with operational complexity. Defaults are Afghanistan-market starting points; tune from your own delivery data.">
                         <setting string="Monolith"><field name="sce_arch_monolith"/></setting>
-                        <setting string="Hybrid (Monolith Modular)"><field name="sce_arch_hybrid"/></setting>
+                        <setting string="Layered (N-Tier)"><field name="sce_arch_layered"/></setting>
+                        <setting string="Client-Server"><field name="sce_arch_client_server"/></setting>
+                        <setting string="Modular Monolith (Hybrid)"><field name="sce_arch_hybrid"/></setting>
+                        <setting string="Microkernel / Plug-in"><field name="sce_arch_microkernel"/></setting>
+                        <setting string="Service-Oriented (SOA)"><field name="sce_arch_soa"/></setting>
+                        <setting string="Event-Driven"><field name="sce_arch_event_driven"/></setting>
+                        <setting string="Serverless (FaaS)"><field name="sce_arch_serverless"/></setting>
                         <setting string="Micro Services"><field name="sce_arch_microservices"/></setting>
+                        <setting string="Space-Based"><field name="sce_arch_space_based"/></setting>
+                    </block>
+                    <block title="Sample Data" name="sce_sample_block">
+                        <setting string="OdooMates Sample Project Estimations"
+                                 help="Populate the system with ready-made cost estimations for OdooMates' free Odoo 17 modules (Full Accounting Kit, Payroll, Assets, Budget, PDF Reports, and more).">
+                            <field name="sce_load_odoomates_demo"/>
+                            <div class="content-group mt-2" invisible="not sce_load_odoomates_demo">
+                                <button name="action_load_odoomates_samples"
+                                        type="object" class="btn-link"
+                                        icon="fa-download"
+                                        string="Load / Refresh sample estimations now"/>
+                            </div>
+                        </setting>
                     </block>
                 </app>
             </xpath>

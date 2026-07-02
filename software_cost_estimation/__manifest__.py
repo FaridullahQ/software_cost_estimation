@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Software Cost Estimation",
-    "version": "17.0.3.1.0",
+    "version": "17.0.7.1.0",
     "category": "Services/Project",
     "summary": "Parametric cost estimation for information-system / software "
                "development projects (driver-based, rate-card calibrated).",
@@ -23,9 +23,35 @@ Key capabilities
 * Rate card (role -> hourly rate) used as calibration data.
 * Configurable factor markups (Project Management, Testing, Training,
   Documentation, Maintenance) applied to a selectable base.
+* Technology-stack calibration: a productivity factor per stack (Odoo,
+  Spring Boot, ASP.NET Core, Django, ...) scales build effort so the same
+  functional size costs correctly across stacks.
+* Sub-module roll-up: consolidate several standalone sub-module estimates
+  into one main estimate at a configurable allocation %, with multi-currency
+  conversion and circular-reference protection.
+* Parent / sub-module projects: mark an estimate as a partial sub-module of a
+  parent project. The sub-module carries only its own build effort (Labour +
+  Development) and inherits the parent's productivity factor; shared one-time
+  costs (scope, duration, architecture, technology, stack, license, markups,
+  contingency, discount) are defined and charged once on the parent, so its
+  effort folds into the parent's TDC before markups and contingency - no
+  double counting.
+* Justified discounts: a manager applies a percentage or fixed discount to
+  the final price only with a mandatory reason plus a reference and/or an
+  official supporting document, fully recorded in the chatter.
+* One-click sample data: load ready-made cost estimations for OdooMates' free
+  Odoo 17 modules from Settings, to explore the system with realistic figures.
 * CapEx vs OpEx separation: one-time build cost vs recurring annual maintenance.
 * Risk handling: contingency reserve plus optimistic / most-likely / pessimistic
   three-point (PERT) band.
+* Interactive OWL dashboard (Chart.js): KPIs, pipeline, cost structure and a
+  project deep-dive, filterable by year, client, status, scope, architecture,
+  estimate type and estimator.
+* Ten system-architecture styles (Monolith, Layered, Client-Server, Modular
+  Monolith, Microkernel, SOA, Event-Driven, Serverless, Micro Services,
+  Space-Based), each with a configurable fixed cost. Default flat factors and
+  a round-up increment of 100 are pre-calibrated as Afghanistan-market starting
+  points, all tunable in Settings.
 * Draft -> Under Review -> Approved workflow with chatter and activities.
 * Professional QWeb PDF estimate report.
 """,
@@ -43,9 +69,11 @@ Key capabilities
         "security/ir.model.access.csv",
         "data/ir_sequence_data.xml",
         "data/cost_estimation_rate_data.xml",
+        "data/cost_estimation_stack_data.xml",
         "data/cost_estimation_catalog_data.xml",
         "data/cost_estimation_markup_template_data.xml",
         "views/cost_estimation_rate_views.xml",
+        "views/cost_estimation_stack_views.xml",
         "views/cost_estimation_catalog_views.xml",
         "views/cost_estimate_views.xml",
         "wizard/cost_estimate_wizard_views.xml",

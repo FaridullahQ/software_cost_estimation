@@ -36,6 +36,7 @@ export class CostEstimateDashboard extends Component {
                 state: false,
                 scope: false,
                 architecture: false,
+                estimate_type: "independent",
                 user_id: false,
             },
         });

@@ -121,24 +121,24 @@ class CostEstimateSizingWizard(models.TransientModel):
                 tech = "level1"
             w.recommended_tech_variance = tech
 
-            # ---- architecture ----
-            if w.needs_independent_scaling or w.multiple_teams or scope == "large":
-                arch = "microservices"
-            elif scope == "medium" or w.num_modules >= 3:
-                arch = "hybrid"
-            else:
-                arch = "monolith"
-            w.recommended_architecture = arch
+            # # ---- architecture ----
+            # if w.needs_independent_scaling or w.multiple_teams or scope == "large":
+            #     arch = "microservices"
+            # elif scope == "medium" or w.num_modules >= 3:
+            #     arch = "hybrid"
+            # else:
+            #     arch = "monolith"
+            # w.recommended_architecture = arch
 
             scope_lbl = dict(SCOPE_SELECTION)[scope]
             tech_lbl = dict(TECH_SELECTION)[tech]
-            arch_lbl = dict(ARCH_SELECTION)[arch]
+            # arch_lbl = dict(ARCH_SELECTION)[arch]
             w.rationale = _(
                 "Size score %(score)s -> %(scope)s scope "
                 "(entities, integrations, modules and users weighted).\n"
                 "%(tech)s technology variance based on team familiarity "
                 "'%(fam)s'%(emerg)s.\n"
-                "%(arch)s architecture %(arch_reason)s."
+                # "%(arch)s architecture %(arch_reason)s."
             ) % {
                 "score": score,
                 "scope": scope_lbl,
@@ -147,15 +147,15 @@ class CostEstimateSizingWizard(models.TransientModel):
                     w.team_familiarity, ""
                 ),
                 "emerg": _(" with emerging tech") if w.uses_emerging_tech else "",
-                "arch": arch_lbl,
-                "arch_reason": (
-                    _("because independent scaling / parallel teams / large "
-                      "scope favour separate services")
-                    if arch == "microservices"
-                    else _("as a modular middle ground")
-                    if arch == "hybrid"
-                    else _("because a single small system needs no split")
-                ),
+                # "arch": arch_lbl,
+                # "arch_reason": (
+                #     _("because independent scaling / parallel teams / large "
+                #       "scope favour separate services")
+                #     if arch == "microservices"
+                #     else _("as a modular middle ground")
+                #     if arch == "hybrid"
+                #     else _("because a single small system needs no split")
+                # ),
             }
 
     def action_apply(self):
@@ -171,13 +171,13 @@ class CostEstimateSizingWizard(models.TransientModel):
                 "<ul>"
                 "<li>Scope: %(scope)s</li>"
                 "<li>Technology Variance: %(tech)s</li>"
-                "<li>Architecture: %(arch)s</li>"
+                # "<li>Architecture: %(arch)s</li>"
                 "</ul>"
             ) % {
                 "score": self.size_score,
                 "scope": dict(SCOPE_SELECTION)[self.recommended_scope],
                 "tech": dict(TECH_SELECTION)[self.recommended_tech_variance],
-                "arch": dict(ARCH_SELECTION)[self.recommended_architecture],
+                # "arch": dict(ARCH_SELECTION)[self.recommended_architecture],
             }
         )
         return {"type": "ir.actions.act_window_close"}

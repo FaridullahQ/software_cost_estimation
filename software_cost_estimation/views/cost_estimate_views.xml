@@ -35,6 +35,15 @@
                     <button name="action_cancel" type="object"
                             string="Cancel"
                             invisible="state not in ('draft', 'review')"/>
+                    <button name="action_open_discount_wizard" type="object"
+                            string="Apply Discount" class="btn-secondary"
+                            groups="software_cost_estimation.group_cost_estimation_manager"
+                            invisible="state in ('draft', 'cancel') or estimate_type == 'sub_module'"/>
+                    <button name="action_remove_discount" type="object"
+                            string="Remove Discount"
+                            groups="software_cost_estimation.group_cost_estimation_manager"
+                            invisible="discount_amount == 0 or estimate_type == 'sub_module'"
+                            confirm="Remove the applied discount?"/>
                     <button name="action_print_report" type="object"
                             string="Print" class="btn-secondary"
                             invisible="state == 'cancel'"/>
@@ -42,29 +51,90 @@
                            statusbar_visible="draft,review,approved"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_children" type="object"
+                                class="oe_stat_button" icon="fa-cubes"
+                                invisible="child_count == 0">
+                            <field name="child_count" widget="statinfo"
+                                   string="Sub-Modules" nolabel="1"/>
+                        </button>
+                        <button name="action_open_parent" type="object"
+                                class="oe_stat_button" icon="fa-level-up"
+                                string="Parent Project"
+                                invisible="estimate_type != 'sub_module' or not parent_estimate_id"/>
+                        <button name="action_view_parents" type="object"
+                                class="oe_stat_button" icon="fa-sitemap"
+                                invisible="parent_count == 0">
+                            <field name="parent_count" widget="statinfo"
+                                   string="Used In" nolabel="1"/>
+                        </button>
+                        <field name="parent_count" invisible="1"/>
+                        <field name="child_count" invisible="1"/>
+                    </div>
                     <div class="oe_title">
                         <label for="title"/>
-                        <h1><field name="title" placeholder="e.g. Inventory Management System - Afghan Telecom"/></h1>
-                        <span class="text-muted"><field name="name" readonly="1"/></span>
+                        <h1>
+                            <field name="title" placeholder="e.g. Inventory Management System - Afghan Telecom"/>
+                        </h1>
+                        <span class="text-muted">
+                            <field name="name" readonly="1"/>
+                        </span>
                     </div>
                     <group>
                         <group>
+                            <field name="estimate_type" widget="radio"
+                                   options="{'horizontal': True}"/>
+                            <field name="parent_estimate_id"
+                                   invisible="estimate_type != 'sub_module'"
+                                   required="estimate_type == 'sub_module'"
+                                   domain="[('estimate_type', '=', 'independent'), ('id', '!=', id)]"
+                                   options="{'no_create_edit': True}"/>
                             <field name="system_name"/>
                             <field name="partner_id"/>
                             <field name="user_id"/>
                             <field name="estimate_date"/>
                         </group>
                         <group>
-                            <field name="scope"/>
-                            <field name="duration_months"/>
-                            <field name="architecture"/>
-                            <field name="tech_variance"/>
-                            <field name="license_cost"/>
+                            <field name="scope"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <field name="duration_months"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <field name="architecture"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <field name="tech_variance"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <field name="stack_id"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <field name="stack_factor"
+                                   invisible="estimate_type == 'sub_module' or not stack_id"/>
+                            <field name="license_cost"
+                                   invisible="estimate_type == 'sub_module'"/>
+                            <!-- Inherited-from-parent, shown read-only on a sub-module -->
+                            <field name="parent_stack_id"
+                                   invisible="estimate_type != 'sub_module' or not parent_estimate_id"/>
+                            <field name="parent_stack_factor"
+                                   invisible="estimate_type != 'sub_module' or not parent_estimate_id"/>
                             <field name="currency_id" groups="base.group_multi_currency"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
+                    <div class="alert alert-info" role="alert"
+                         invisible="estimate_type != 'sub_module'">
+                        <i class="fa fa-info-circle"/>
+                        This is a <b>sub-module</b>.
+                        Only its own build effort (Labour + Development) is
+                        estimated here. The shared one-time costs &#8212; scope,
+                        duration, architecture, technology variance, technology
+                        stack, license, markups, contingency and discount &#8212;
+                        are defined and charged once on the parent project
+                        <b>
+                            <field name="parent_estimate_id" readonly="1" nolabel="1"
+                                   class="oe_inline"/>
+                        </b>
+                        , so they are hidden here
+                        to avoid double counting. The parent's productivity factor
+                        is inherited automatically.
+                    </div>
                     <notebook>
                         <page string="Labour (Pre-Development)" name="labor">
                             <field name="labor_line_ids">
@@ -109,7 +179,8 @@
                                 <field name="dev_catalog_cost"/>
                             </group>
                         </page>
-                        <page string="Markups &amp; Maintenance" name="markups">
+                        <page string="Markups &amp; Maintenance" name="markups"
+                              invisible="estimate_type == 'sub_module'">
                             <group>
                                 <group>
                                     <field name="markup_base_mode" widget="radio"/>
@@ -121,8 +192,10 @@
                                      invisible="markup_base_mode != 'manual'">
                                     Manual mode: every markup line uses the single
                                     base above. You can also type it directly in the
-                                    <b>Base</b> column on any line - it updates the
-                                    shared base for all lines. The <b>Applied On</b>
+                                    <b>Base</b>
+                                    column on any line - it updates the
+                                    shared base for all lines. The
+                                    <b>Applied On</b>
                                     pool is ignored.
                                 </div>
                             </group>
@@ -142,7 +215,81 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Risk &amp; Negotiation" name="risk">
+                        <page string="Linked Sub-Modules" name="sub_modules"
+                              invisible="estimate_type == 'sub_module'">
+                            <div class="alert alert-info" role="alert">
+                                Partial sub-modules of this project. Each holds
+                                only its own build effort (Labour + Development);
+                                its effort folds into this project's TDC
+                                <b>before</b>
+                                markups and contingency, so shared
+                                costs are charged once here. Open a row to edit
+                                the sub-module, or use the button to add one.
+                            </div>
+                            <field name="child_estimate_ids" mode="tree"
+                                   context="{'default_estimate_type': 'sub_module',
+                                             'default_parent_estimate_id': id,
+                                             'default_partner_id': partner_id}">
+                                <tree create="true" delete="true">
+                                    <field name="name"/>
+                                    <field name="title"/>
+                                    <field name="system_name" optional="show"/>
+                                    <field name="labor_cost" optional="hide"/>
+                                    <field name="dev_catalog_cost" optional="hide"/>
+                                    <field name="build_effort" sum="Build Effort"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right"
+                                   invisible="child_count == 0">
+                                <field name="child_build_total"/>
+                            </group>
+                        </page>
+                        <page string="Reusable Components" name="components"
+                              invisible="estimate_type == 'sub_module'">
+                            <div class="alert alert-info" role="alert">
+                                Roll standalone, <b>fully-loaded</b> estimates into
+                                this one. Each is added at its allocation % (use
+                                &lt; 100% for a shared component). These are summed
+                                fully-loaded &#8212; this estimate's markups and
+                                contingency are <b>not</b> re-applied on top.
+                                (Different from Linked Sub-Modules, which carry only
+                                build effort and share this project's costs.)
+                            </div>
+                            <field name="component_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="sub_estimate_id"
+                                           domain="[('id', '!=', parent.id)]"
+                                           options="{'no_create': True}"/>
+                                    <field name="sub_system_name" optional="show"/>
+                                    <field name="sub_partner_id" optional="show"/>
+                                    <field name="sub_state" optional="hide"/>
+                                    <field name="sub_grand_total" optional="show"/>
+                                    <field name="sub_currency_id" column_invisible="1"/>
+                                    <field name="allocation_percent"/>
+                                    <field name="allocated_capex" readonly="1" sum="CapEx"/>
+                                    <field name="allocated_opex" readonly="1" sum="OpEx"/>
+                                    <field name="allocated_total" readonly="1" sum="Year-1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right"
+                                   invisible="not has_components">
+                                <field name="components_capex"/>
+                                <field name="components_opex"/>
+                                <field name="consolidated_capex"/>
+                                <field name="consolidated_opex"/>
+                                <div class="oe_subtotal_footer_separator">
+                                    <label for="consolidated_total"/>
+                                    <field name="consolidated_total" nolabel="1"
+                                           class="oe_subtotal_footer_separator"/>
+                                </div>
+                            </group>
+                        </page>
+                        <page string="Risk &amp; Negotiation" name="risk"
+                              invisible="estimate_type == 'sub_module'">
                             <group>
                                 <group string="Risk Band (Three-Point / PERT)">
                                     <field name="contingency_percent"/>
@@ -156,6 +303,23 @@
                                     <field name="approved_amount"/>
                                     <field name="variance" readonly="1"/>
                                 </group>
+                                <group string="Discount" colspan="2"
+                                       invisible="discount_amount == 0">
+                                    <group>
+                                        <field name="discount_type" readonly="1"/>
+                                        <field name="discount_value" readonly="1"/>
+                                        <field name="discount_amount" readonly="1"/>
+                                        <field name="final_price" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="discount_reference" readonly="1"/>
+                                        <field name="discount_user_id" readonly="1"/>
+                                        <field name="discount_date" readonly="1"/>
+                                    </group>
+                                    <field name="discount_reason" readonly="1" colspan="2"/>
+                                    <field name="discount_attachment_ids" colspan="2"
+                                           widget="many2many_binary" readonly="1"/>
+                                </group>
                             </group>
                         </page>
                         <page string="Notes / Assumptions" name="notes">
@@ -164,19 +328,80 @@
                     </notebook>
 
                     <group class="oe_subtotal_footer oe_right" name="totals">
-                        <field name="tdc"/>
-                        <field name="scope_cost"/>
-                        <field name="duration_cost"/>
-                        <field name="markup_one_time"/>
-                        <field name="contingency_amount"/>
+                        <!-- ============= Sub-module: build effort only ============= -->
+                        <field name="stack_adjustment"
+                               invisible="estimate_type != 'sub_module' or stack_adjustment == 0"/>
+                        <div class="oe_subtotal_footer_separator"
+                             invisible="estimate_type != 'sub_module'">
+                            <label for="build_effort"
+                                   string="Sub-Module Build Effort (rolls into parent)"/>
+                            <field name="build_effort" nolabel="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </div>
+
+                        <!-- ================= Independent project ================= -->
+                        <field name="stack_adjustment"
+                               invisible="estimate_type == 'sub_module' or stack_adjustment == 0"/>
+                        <field name="build_effort" string="Own Build Effort"
+                               invisible="estimate_type == 'sub_module' or child_count == 0"/>
+                        <field name="child_build_total"
+                               invisible="estimate_type == 'sub_module' or child_count == 0"/>
+                        <field name="tdc"
+                               invisible="estimate_type == 'sub_module'"/>
+                        <field name="scope_cost"
+                               invisible="estimate_type == 'sub_module'"/>
+                        <field name="duration_cost"
+                               invisible="estimate_type == 'sub_module'"/>
+                        <field name="markup_one_time"
+                               invisible="estimate_type == 'sub_module'"/>
+                        <field name="contingency_amount"
+                               invisible="estimate_type == 'sub_module'"/>
                         <field name="total_one_time"
-                               class="oe_subtotal_footer_separator"/>
-                        <field name="maintenance_annual"/>
-                        <div class="oe_subtotal_footer_separator">
+                               class="oe_subtotal_footer_separator"
+                               invisible="estimate_type == 'sub_module'"/>
+                        <field name="maintenance_annual"
+                               invisible="estimate_type == 'sub_module'"/>
+
+                        <!-- Headline when this is a standalone estimate -->
+                        <div class="oe_subtotal_footer_separator"
+                             invisible="estimate_type == 'sub_module' or has_components or discount_amount != 0">
                             <label for="grand_total"/>
                             <field name="grand_total" nolabel="1"
                                    class="oe_subtotal_footer_separator"/>
                         </div>
+                        <!-- Otherwise Grand Total is the main-module subtotal -->
+                        <field name="grand_total"
+                               string="Main Module Subtotal (Year 1)"
+                               class="oe_subtotal_footer_separator"
+                               invisible="estimate_type == 'sub_module' or (not has_components and discount_amount == 0)"/>
+
+                        <field name="components_capex"
+                               invisible="estimate_type == 'sub_module' or not has_components"/>
+                        <field name="components_opex"
+                               invisible="estimate_type == 'sub_module' or not has_components"/>
+                        <!-- Headline when there are reusable components but no discount -->
+                        <div class="oe_subtotal_footer_separator"
+                             invisible="estimate_type == 'sub_module' or not has_components or discount_amount != 0">
+                            <label for="consolidated_total"/>
+                            <field name="consolidated_total" nolabel="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </div>
+                        <!-- Otherwise Consolidated is an intermediate subtotal -->
+                        <field name="consolidated_total"
+                               class="oe_subtotal_footer_separator"
+                               invisible="estimate_type == 'sub_module' or not has_components or discount_amount == 0"/>
+
+                        <field name="discount_amount"
+                               invisible="estimate_type == 'sub_module' or discount_amount == 0"/>
+                        <!-- Headline whenever a discount applies -->
+                        <div class="oe_subtotal_footer_separator"
+                             invisible="estimate_type == 'sub_module' or discount_amount == 0">
+                            <label for="final_price"/>
+                            <field name="final_price" nolabel="1"
+                                   class="oe_subtotal_footer_separator"/>
+                        </div>
+
+                        <field name="has_components" invisible="1"/>
                     </group>
                     <div class="clearfix"/>
                 </sheet>
@@ -202,14 +427,20 @@
                   decoration-muted="state == 'cancel'">
                 <field name="name"/>
                 <field name="title"/>
+                <field name="estimate_type" optional="show"/>
+                <field name="parent_estimate_id" optional="hide"/>
                 <field name="partner_id"/>
                 <field name="user_id"/>
                 <field name="estimate_date"/>
                 <field name="scope" optional="show"/>
                 <field name="architecture" optional="hide"/>
+                <field name="stack_id" optional="hide"/>
+                <field name="build_effort" optional="hide"/>
                 <field name="tdc" optional="show"/>
                 <field name="total_one_time" optional="show"/>
                 <field name="grand_total" sum="Total"/>
+                <field name="discount_amount" optional="hide" sum="Discount"/>
+                <field name="final_price" optional="hide" sum="Final"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
@@ -268,16 +499,32 @@
                 <field name="title"/>
                 <field name="partner_id"/>
                 <field name="user_id"/>
+                <field name="stack_id"/>
+                <field name="parent_estimate_id"/>
                 <filter name="my" string="My Estimates"
                         domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="independent" string="Independent Projects"
+                        domain="[('estimate_type', '=', 'independent')]"/>
+                <filter name="sub_modules" string="Sub-Modules"
+                        domain="[('estimate_type', '=', 'sub_module')]"/>
+                <filter name="discounted" string="Discounted"
+                        domain="[('discount_amount', '&gt;', 0)]"/>
+                <filter name="has_subs" string="Has Linked Sub-Modules"
+                        domain="[('child_estimate_ids', '!=', False)]"/>
+                <filter name="has_components" string="Has Reusable Components"
+                        domain="[('has_components', '=', True)]"/>
                 <separator/>
                 <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
                 <filter name="review" string="Under Review" domain="[('state','=','review')]"/>
                 <filter name="approved" string="Approved" domain="[('state','=','approved')]"/>
                 <group expand="0" string="Group By">
+                    <filter name="group_type" string="Estimate Type" context="{'group_by':'estimate_type'}"/>
+                    <filter name="group_parent" string="Parent Project" context="{'group_by':'parent_estimate_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by':'state'}"/>
                     <filter name="group_partner" string="Client" context="{'group_by':'partner_id'}"/>
                     <filter name="group_user" string="Estimator" context="{'group_by':'user_id'}"/>
+                    <filter name="group_stack" string="Technology Stack" context="{'group_by':'stack_id'}"/>
                 </group>
             </search>
         </field>
@@ -288,6 +535,7 @@
         <field name="res_model">cost.estimate</field>
         <field name="view_mode">tree,kanban,form</field>
         <field name="search_view_id" ref="view_cost_estimate_search"/>
+        <field name="context">{'search_default_independent': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Create your first cost estimate</p>
             <p>Build a driver-based parametric estimate for a software / information-system project.</p>

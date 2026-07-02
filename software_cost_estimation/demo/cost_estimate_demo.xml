@@ -70,5 +70,70 @@
             ]"/>
         </record>
 
+        <!-- ============ Payments Service (sub-module, Odoo stack) ============ -->
+        <record id="demo_estimate_payments" model="cost.estimate">
+            <field name="title">Payments Service - Afghan Post (Sub-Module)</field>
+            <field name="system_name">Payments Micro-Service</field>
+            <field name="scope">small</field>
+            <field name="duration_months">3</field>
+            <field name="architecture">microservices</field>
+            <field name="tech_variance">level2</field>
+            <field name="stack_id" ref="stack_odoo"/>
+            <field name="contingency_percent">10</field>
+            <field name="labor_line_ids" eval="[
+                (0,0,{'sequence':10,'name':'Assessment','role_id':ref('rate_sr_re'),'responsible':'Sr. Requirements Engineer','persons':1,'working_days':5,'hours_per_day':8,'hourly_rate':15}),
+                (0,0,{'sequence':20,'name':'Analysis','role_id':ref('rate_sr_sa'),'responsible':'Sr. System Analyst','persons':1,'working_days':10,'hours_per_day':8,'hourly_rate':15}),
+            ]"/>
+            <field name="dev_line_ids" eval="[
+                (0,0,{'sequence':10,'catalog_id':ref('cat_trans_tables'),'name':'# of Transactional Tables','category':'data_model','calc_method':'count_complexity_rate','count':6,'complexity':7,'unit_rate':10}),
+                (0,0,{'sequence':20,'catalog_id':ref('cat_processes'),'name':'# of Processes','category':'logic','calc_method':'count_complexity_rate','count':5,'complexity':7,'unit_rate':10}),
+                (0,0,{'sequence':30,'catalog_id':ref('cat_integration'),'name':'# Systems Integration','category':'integration','calc_method':'flat','count':2,'unit_rate':1000}),
+                (0,0,{'sequence':40,'catalog_id':ref('cat_auth_oauth'),'name':'Auth: OAuth 2.0','category':'security','calc_method':'toggle','included':True,'unit_rate':1000}),
+            ]"/>
+        </record>
+
+        <!-- ============ Roll the sub-module into the HRMIS main ============ -->
+        <record id="demo_component_hrmis_payments" model="cost.estimate.component">
+            <field name="main_estimate_id" ref="demo_estimate_hrmis"/>
+            <field name="sub_estimate_id" ref="demo_estimate_payments"/>
+            <field name="allocation_percent">100</field>
+        </record>
+
+        <!-- ===== Parent project + linked sub-module (new mechanism) ===== -->
+        <record id="demo_estimate_portal" model="cost.estimate">
+            <field name="title">Citizen Services Portal - MCIT</field>
+            <field name="system_name">Citizen Services Portal</field>
+            <field name="estimate_type">independent</field>
+            <field name="scope">large</field>
+            <field name="duration_months">9</field>
+            <field name="architecture">hybrid</field>
+            <field name="tech_variance">level2</field>
+            <field name="stack_id" ref="stack_odoo"/>
+            <field name="contingency_percent">12</field>
+            <field name="labor_line_ids" eval="[
+                (0,0,{'sequence':10,'name':'Requirement &amp; Analysis','role_id':ref('rate_sr_re'),'responsible':'Sr. Requirements Engineer','persons':2,'working_days':20,'hours_per_day':8,'hourly_rate':15}),
+                (0,0,{'sequence':20,'name':'Architecture &amp; Design','role_id':ref('rate_sr_sa'),'responsible':'Sr. System Analyst','persons':1,'working_days':12,'hours_per_day':8,'hourly_rate':15}),
+            ]"/>
+            <field name="dev_line_ids" eval="[
+                (0,0,{'sequence':10,'catalog_id':ref('cat_trans_tables'),'name':'# of Transactional Tables','category':'data_model','calc_method':'count_complexity_rate','count':14,'complexity':6,'unit_rate':10}),
+                (0,0,{'sequence':20,'catalog_id':ref('cat_processes'),'name':'# of Processes','category':'logic','calc_method':'count_complexity_rate','count':12,'complexity':6,'unit_rate':10}),
+                (0,0,{'sequence':30,'catalog_id':ref('cat_reporting'),'name':'Reporting','category':'analytics','calc_method':'count_complexity_rate','count':8,'complexity':5,'unit_rate':100}),
+            ]"/>
+        </record>
+
+        <record id="demo_estimate_portal_notifications" model="cost.estimate">
+            <field name="title">Notifications Module - Citizen Portal</field>
+            <field name="system_name">Notifications Module</field>
+            <field name="estimate_type">sub_module</field>
+            <field name="parent_estimate_id" ref="demo_estimate_portal"/>
+            <field name="labor_line_ids" eval="[
+                (0,0,{'sequence':10,'name':'Build','role_id':ref('rate_sr_sa'),'responsible':'System Analyst','persons':1,'working_days':8,'hours_per_day':8,'hourly_rate':15}),
+            ]"/>
+            <field name="dev_line_ids" eval="[
+                (0,0,{'sequence':10,'catalog_id':ref('cat_processes'),'name':'# of Processes','category':'logic','calc_method':'count_complexity_rate','count':5,'complexity':5,'unit_rate':10}),
+                (0,0,{'sequence':20,'catalog_id':ref('cat_integration'),'name':'SMS / Email Gateways','category':'integration','calc_method':'flat','count':2,'unit_rate':1000}),
+            ]"/>
+        </record>
+
     </data>
 </odoo>
