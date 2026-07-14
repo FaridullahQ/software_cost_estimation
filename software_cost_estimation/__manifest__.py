@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Software Cost Estimation",
-    "version": "17.0.7.1.0",
+    "version": "17.0.7.1.1",
     "category": "Services/Project",
     "summary": "Parametric cost estimation for information-system / software "
                "development projects (driver-based, rate-card calibrated).",

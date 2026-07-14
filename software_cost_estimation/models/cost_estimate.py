@@ -765,10 +765,25 @@ class CostEstimate(models.Model):
     def action_load_template(self):
         """Populate a fresh estimate with the standard labour phases and the
         full development-driver catalog so the estimator starts from a complete
-        baseline instead of a blank sheet."""
+        baseline instead of a blank sheet.
+
+        Guarded against double-loading: if both the Labour (Pre-Development)
+        and Development Drivers sections already contain at least one line,
+        the estimator must clear them first before loading again. This keeps
+        a single click idempotent and protects any manual edits the user may
+        have already made on top of a previously loaded template.
+        """
         self.ensure_one()
         if self.state != "draft":
             raise UserError(_("Templates can only be loaded on a draft estimate."))
+        if self.labor_line_ids and self.dev_line_ids:
+            raise UserError(_(
+                "The standard template has already been loaded on this "
+                "estimate: both the Labour (Pre-Development) and "
+                "Development Drivers sections already contain lines.\n\n"
+                "To load it again, first delete all existing lines in both "
+                "sections, then click 'Load Standard Template' again."
+            ))
         self._load_standard_labor()
         self._load_catalog_lines()
         if not self.markup_line_ids:
@@ -776,6 +791,9 @@ class CostEstimate(models.Model):
         return True
 
     def _load_standard_labor(self):
+        """(Re)build the standard labour phases. Always replaces any
+        existing labour lines instead of appending, so this method is
+        idempotent no matter how many times it is invoked."""
         Rate = self.env["cost.estimation.rate"]
         re_role = Rate.search([("code", "=", "RE")], limit=1) or Rate.search([], limit=1)
         sa_role = Rate.search([("code", "=", "SA")], limit=1) or re_role
@@ -786,7 +804,9 @@ class CostEstimate(models.Model):
             ("Requirement Gathering", re_role, 2, 30.0, rate_re),
             ("Analysis", sa_role, 3, 45.0, rate_sa),
         ]
-        commands = []
+        # (5, 0, 0) clears any existing labour lines before the fresh set is
+        # created, so this can never silently pile up duplicates.
+        commands = [(5, 0, 0)]
         for seq, (label, role, persons, days, rate) in enumerate(phases, start=1):
             commands.append((0, 0, {
                 "sequence": seq * 10,
@@ -801,7 +821,12 @@ class CostEstimate(models.Model):
         self.labor_line_ids = commands
 
     def _load_catalog_lines(self):
-        commands = []
+        """(Re)build the development-driver lines from the catalog. Always
+        replaces any existing dev lines instead of appending, so this method
+        is idempotent no matter how many times it is invoked."""
+        # (5, 0, 0) clears any existing dev-driver lines before the fresh
+        # set is created, so this can never silently pile up duplicates.
+        commands = [(5, 0, 0)]
         catalog = self.env["cost.estimation.catalog"].search([])
         for seq, item in enumerate(catalog, start=1):
             commands.append((0, 0, {
